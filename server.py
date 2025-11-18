@@ -33,7 +33,7 @@ def handle_client (conn,addr):
             send_data += "LOGOUT from the server.\n"
 
             conn.send(send_data.encode(FORMAT))
-        
+        # TO DO, tried but does not work yet
         elif cmd == "UPLOAD":
             send_data += "Ready to receive the file.\n"
             conn.send(send_data.encode(FORMAT))
@@ -72,16 +72,16 @@ def handle_client (conn,addr):
             print(f"File {filename} received from {addr}")
             fo.close()
             '''
-
+        # TO DO
         elif cmd == "DOWNLOAD":
             continue
-        
+        # TO DO
         elif cmd == "DELETE":
             continue
-
+        # TO DO
         elif cmd == "DIR":
             continue
-
+        # TO DO
         elif cmd == "SUBFOLDER":
             continue
 
