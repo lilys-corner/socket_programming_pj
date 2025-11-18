@@ -38,7 +38,7 @@ def main():
             client.send(cmd.encode(FORMAT))
             break
       
-
+        # TO DO, tried but does not work yet
         elif cmd == "UPLOAD":
             filename = input("Enter the filename to upload: ")
             client.send(cmd.encode(FORMAT))
@@ -67,22 +67,24 @@ def main():
                 data = fi.read()
             fi.close()
             '''
-
+        # TO DO
         elif cmd == "DOWNLOAD":
             continue
-        
+        # TO DO
         elif cmd == "DELETE":
             continue
-
+        # TO DO
         elif cmd == "DIR":
             continue
-
+        # TO DO
         elif cmd == "SUBFOLDER":
             continue
 
 
     print("Disconnected from the server.")
     client.close() ## close the connection
+
+# DO MAIN FUNCTION
 
 if __name__ == "__main__":
     main()
