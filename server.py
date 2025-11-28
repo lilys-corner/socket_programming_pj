@@ -63,15 +63,14 @@ def handle_client (conn,addr):
 
                     fo.write(data)
             # receive data, copy it
-            
-            send_data = f"File {filename} uploaded successfully.\n"
-            conn.send(send_data.encode(FORMAT))
-            # send final confirmation
+            fo.close()
             
             print(f"File {filename} received from {addr}")
             # tell yourself that you got it w/ location
-            fo.close()
             
+            send_data = f"OK@File {filename} uploaded successfully.\n"
+            conn.send(send_data.encode(FORMAT))
+            # send final confirmation
         
         # TO DO
         elif cmd == "DOWNLOAD":
@@ -105,4 +104,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
