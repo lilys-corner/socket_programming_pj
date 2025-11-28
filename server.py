@@ -21,7 +21,10 @@ def handle_client (conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     conn.send("OK@Welcome to the server".encode(FORMAT))
     
+    # list to track uploaded files
     uploaded = []
+    
+    # list to track subdirectories (for later)
 
     while True:
         data =  conn.recv(SIZE).decode(FORMAT)
@@ -111,12 +114,39 @@ def handle_client (conn,addr):
         # TO DO
         elif cmd == "DOWNLOAD":
             continue
-        # TO DO
+            '''
+            # send to client_1 that you're ready
+            send_data += "Ready to receive the file.\n"
+            conn.send(send_data.encode(FORMAT))
+            
+            # get filename
+            filename = conn.recv(SIZE).decode(FORMAT).strip()
+            '''
+        
         elif cmd == "DELETE":
-            continue
+            # send to client_1 that you're ready
+            send_data += "Ready to receive the file.\n"
+            conn.send(send_data.encode(FORMAT))
+            
+            # get filename
+            filename = conn.recv(SIZE).decode(FORMAT).strip()
+            
+            # if file exists in server, delete it
+            if (filename in uploaded):
+                uploaded.remove(filename)
+                
+                send_data = f"OK@File {filename} successfully deleted.\n"
+                conn.send(send_data.encode(FORMAT))
+            
+            # if file does not exist in server, do nothing and say it doesn't exist
+            else:
+                send_data = f"OK@File {filename} unable to be deleted: does not exist.\n"
+                conn.send(send_data.encode(FORMAT))
+            
         # TO DO
         elif cmd == "DIR":
             continue
+        
         # TO DO
         elif cmd == "SUBFOLDER":
             continue
