@@ -108,6 +108,9 @@ def main():
         # TO DO
         elif cmd == "SUBFOLDER":
             continue
+        
+        else:
+            client.send(cmd.encode(FORMAT))
       
 
 
