@@ -38,7 +38,7 @@ def main():
         
         elif cmd == "UPLOAD":
             client.send(cmd.encode(FORMAT))
-            # send to server that cmd is UPLOAD so it chooses UPLOAD of its functions 
+            # send that cmd is UPLOAD 
             
             client.recv(SIZE).decode(FORMAT)
             # receive "ready to receive" to continue
@@ -47,24 +47,36 @@ def main():
             client.send(filename.encode(FORMAT))
             # send filename to be saved in the server 
 
-            client.recv(SIZE).decode(FORMAT)
-            # receive "file received" to continue
-
-            with open(filename,"r") as fo:
-                data = fo.read(SIZE)
-                while data:
-                    client.send(data.encode(FORMAT))
+            if (client.recv(SIZE).decode(FORMAT) == "File already exists.\n"):
+                ans = input(f"File {filename} already exists. Would you like to overwrite it? Y/N\n")
+                client.send(ans.encode(FORMAT))
+                if (ans = "Y"):
+                    with open(filename,"r") as fo:
+                        data = fo.read(SIZE)
+                        while data:
+                            client.send(data.encode(FORMAT))
+                            data = fo.read(SIZE)
+                    client.send("EOF".encode(FORMAT))
+                    # EOF indicates end of file
+                    
+                    client.recv(SIZE).decode(FORMAT)
+                    print(f"File {filename} uploaded to the server.")
+                    fo.close()
+            # receive "file received" or "file already exists" to continue
+            
+            else:
+                with open(filename,"r") as fo:
                     data = fo.read(SIZE)
-            client.send("EOF".encode(FORMAT))
-            # EOF indicates end of file
+                    while data:
+                        client.send(data.encode(FORMAT))
+                        data = fo.read(SIZE)
+                client.send("EOF".encode(FORMAT))
+                # EOF indicates end of file
+                
+                client.recv(SIZE).decode(FORMAT)
+                print(f"File {filename} uploaded to the server.")
+                fo.close()
             
-            client.recv(SIZE).decode(FORMAT)
-            # receive "file {filename} uploaded to server"
-            
-            print(f"File {filename} uploaded to the server.")
-            # confirm to user that it's been done
-            
-            fo.close()
         
         # TO DO
         elif cmd == "DOWNLOAD":
