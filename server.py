@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
+# Author : Ayesha S. Dina
+
 import os
 import socket
 import threading
@@ -15,10 +18,11 @@ SERVER_PATH = "server"
 ### to handle the clients
 def handle_client (conn,addr):
 
-
     print(f"[NEW CONNECTION] {addr} connected.")
     conn.send("OK@Welcome to the server".encode(FORMAT))
-    filenum = 0
+    
+    uploaded = []
+
     while True:
         data =  conn.recv(SIZE).decode(FORMAT)
         data = data.split("@")
@@ -31,19 +35,23 @@ def handle_client (conn,addr):
 
         elif cmd == "TASK": 
             send_data += "LOGOUT from the server.\n"
+            send_data += "UPLOAD a file to the server.\n"
 
             conn.send(send_data.encode(FORMAT))
-        # TO DO, tried but does not work yet
+
         elif cmd == "UPLOAD":
             send_data += "Ready to receive the file.\n"
             conn.send(send_data.encode(FORMAT))
-            #ive gotten it to work up to this point
-            #literally havent gotten it to work properly past this point
-            '''
+            # send to client_1 that you're ready
+            
+            print("Here")
+            
             filename = conn.recv(SIZE).decode(FORMAT).strip()
+            # get filename
 
             send_data = "File received successfully.\n"
             conn.send(send_data.encode(FORMAT))
+            # send confirmation, client_1 receives it
             
             with open(filename, "w") as fo:
                 while True:
@@ -54,24 +62,17 @@ def handle_client (conn,addr):
                         break
 
                     fo.write(data)
-
-            conn.send(f"File {filename} uploaded successfully.\n".encode(FORMAT))
+            # receive data, copy it
+            
+            send_data = f"File {filename} uploaded successfully.\n"
+            conn.send(send_data.encode(FORMAT))
+            # send final confirmation
+            
             print(f"File {filename} received from {addr}")
-            '''
-            '''
-            filename = 'file' + str(filenum) + '.txt'
-            filenum += 1
-            fo = open(filename,"w")
-            while data:
-                if not data:
-                    break
-                else:
-                    fo.write(data)
-                    data = conn.recv(SIZE).decode(FORMAT)
-
-            print(f"File {filename} received from {addr}")
+            # tell yourself that you got it w/ location
             fo.close()
-            '''
+            
+        
         # TO DO
         elif cmd == "DOWNLOAD":
             continue
@@ -84,7 +85,6 @@ def handle_client (conn,addr):
         # TO DO
         elif cmd == "SUBFOLDER":
             continue
-
 
 
     print(f"{addr} disconnected")
