@@ -40,37 +40,73 @@ def handle_client (conn,addr):
             conn.send(send_data.encode(FORMAT))
 
         elif cmd == "UPLOAD":
+            # send to client_1 that you're ready
             send_data += "Ready to receive the file.\n"
             conn.send(send_data.encode(FORMAT))
-            # send to client_1 that you're ready
             
-            print("Here")
-            
-            filename = conn.recv(SIZE).decode(FORMAT).strip()
             # get filename
-
-            send_data = "File received successfully.\n"
-            conn.send(send_data.encode(FORMAT))
-            # send confirmation, client_1 receives it
+            filename = conn.recv(SIZE).decode(FORMAT).strip()
             
-            with open(filename, "w") as fo:
-                while True:
-                    data = conn.recv(SIZE).decode(FORMAT)
-                    if not data:
-                        break
-                    if data == "EOF":
-                        break
-
-                    fo.write(data)
-            # receive data, copy it
-            fo.close()
+            # checks if the file has already been uploaded
+            if (filename in uploaded):
+                # if it's been uploaded, send a 1 to client to let it know
+                send_data = "File received successfully. 1\n"
+                conn.send(send_data.encode(FORMAT))
+                
+                # receive if user wants to overwrite it (Y/N)
+                ans = conn.recv(SIZE).decode(FORMAT)
+                
+                # if user wants to overwrite, upload file again
+                if (ans == "Y"):
+                    # receive data, copy it
+                    with open(filename, "w") as fo:
+                        while True:
+                            data = conn.recv(SIZE).decode(FORMAT)
+                            if not data:
+                                break
+                            if data == "EOF":
+                                break
+                            fo.write(data)
+                    fo.close()
+                    
+                    # tell yourself that you got it w/ location
+                    print(f"File {filename} received from {addr}")
+                    
+                    # send final confirmation
+                    send_data = f"OK@File {filename} overwritten.\n"
+                    conn.send(send_data.encode(FORMAT))
+                
+                # if user doesn't want to overwrite, end
+                else:
+                    send_data = f"OK@File {filename} not overwritten.\n"
+                    conn.send(send_data.encode(FORMAT))
             
-            print(f"File {filename} received from {addr}")
-            # tell yourself that you got it w/ location
-            
-            send_data = f"OK@File {filename} uploaded successfully.\n"
-            conn.send(send_data.encode(FORMAT))
-            # send final confirmation
+            # if file not already uploaded, upload the file
+            else:
+                # send confirmation, client_1 receives it
+                send_data = "File received successfully.\n"
+                conn.send(send_data.encode(FORMAT))
+                
+                # receive data, copy it
+                with open(filename, "w") as fo:
+                    while True:
+                        data = conn.recv(SIZE).decode(FORMAT)
+                        if not data:
+                            break
+                        if data == "EOF":
+                            break
+                        fo.write(data)
+                fo.close()
+                
+                # add uploaded file to the uploaded list so we know we have it
+                uploaded.append(filename)
+                
+                # tell yourself that you got it w/ location
+                print(f"File {filename} received from {addr}")
+                
+                # send final confirmation
+                send_data = f"OK@File {filename} uploaded successfully.\n"
+                conn.send(send_data.encode(FORMAT))
         
         # TO DO
         elif cmd == "DOWNLOAD":
