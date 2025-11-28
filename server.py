@@ -150,6 +150,10 @@ def handle_client (conn,addr):
         # TO DO
         elif cmd == "SUBFOLDER":
             continue
+        
+        else:
+            send_data = f"OK@There is no option for {cmd}. Please try again or type TASK for help.\n"
+            conn.send(send_data.encode(FORMAT))
 
 
     print(f"{addr} disconnected")
