@@ -83,12 +83,28 @@ def main():
         # TO DO
         elif cmd == "DOWNLOAD":
             continue
-        # TO DO
+            '''
+            # send to server that cmd is DOWNLOAD so it chooses DOWNLOAD of its functions 
+            client.send(cmd.encode(FORMAT))
+            
+            # receive "ready to send" to continue
+            client.recv(SIZE).decode(FORMAT)'''
+        
         elif cmd == "DELETE":
-            continue
+            # send to server that cmd is DELETE so it chooses DELETE of its functions 
+            client.send(cmd.encode(FORMAT))
+            
+            # receive "ready to receive" to continue
+            client.recv(SIZE).decode(FORMAT)
+            
+            # ask user what to delete
+            filename = input("Enter the filename to delete: ")
+            client.send(filename.encode(FORMAT))
+        
         # TO DO
         elif cmd == "DIR":
             continue
+        
         # TO DO
         elif cmd == "SUBFOLDER":
             continue
