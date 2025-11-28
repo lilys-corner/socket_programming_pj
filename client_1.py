@@ -82,13 +82,19 @@ def main():
         
         # TO DO
         elif cmd == "DOWNLOAD":
-            continue
-            '''
             # send to server that cmd is DOWNLOAD so it chooses DOWNLOAD of its functions 
             client.send(cmd.encode(FORMAT))
             
             # receive "ready to send" to continue
-            client.recv(SIZE).decode(FORMAT)'''
+            client.recv(SIZE).decode(FORMAT)
+            
+            # send filename to be sent from the server
+            filename = input("Enter the filename to download: ")
+            client.send(filename.encode(FORMAT))
+            
+            if ("1" not in client.recv(SIZE).decode(FORMAT)):
+                continue
+                ### IMPLEMENT RECEIVING FILE FROM SERVER
         
         elif cmd == "DELETE":
             # send to server that cmd is DELETE so it chooses DELETE of its functions 
