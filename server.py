@@ -39,6 +39,8 @@ def handle_client (conn,addr):
         elif cmd == "TASK": 
             send_data += "LOGOUT from the server.\n"
             send_data += "UPLOAD a file to the server.\n"
+            send_data += "DOWNLOAD a file from the server.\n"
+            send_data += "DELETE a file from the server.\n"
 
             conn.send(send_data.encode(FORMAT))
 
