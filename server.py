@@ -44,33 +44,66 @@ def handle_client (conn,addr):
             conn.send(send_data.encode(FORMAT))
             # send to client_1 that you're ready
             
-            print("Here")
-            
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             # get filename
-
-            send_data = "File received successfully.\n"
+            
+            if (filename in uploaded):
+                send_data = "File already exists.\n"
+                conn.send(send_data.encode(FORMAT))
+                # send warning
+                
+                ans = conn.recv(SIZE).decode(FORMAT)
+                # receive yes or no
+                if (ans == "Y"):
+                    with open(filename, "w") as fo:
+                        while True:
+                            data = conn.recv(SIZE).decode(FORMAT)
+                            if not data:
+                                break
+                            if data == "EOF":
+                                break
+                            fo.write(data)
+                    # receive data, copy it
+            
+                    send_data = f"File {filename} uploaded successfully.\n"
+                    conn.send(send_data.encode(FORMAT))
+                    # send final confirmation
+            
+                    print(f"File {filename} received from {addr}")
+                    # tell yourself that you got it w/ location
+                    fo.close()
+                    
+                    send_data = f"OK@File {filename} overwritten."
+                else:
+                    send_data = f"OK@File {filename} not overwritten."
+            
+            else:
+                send_data = "File received successfully.\n"
+                conn.send(send_data.encode(FORMAT))
+                # send confirmation, client_1 receives it
+                
+                with open(filename, "w") as fo:
+                    while True:
+                        data = conn.recv(SIZE).decode(FORMAT)
+                        if not data:
+                            break
+                        if data == "EOF":
+                            break
+    
+                        fo.write(data)
+                # receive data, copy it
+                
+                send_data = f"File {filename} uploaded successfully.\n"
+                conn.send(send_data.encode(FORMAT))
+                # send final confirmation
+                
+                print(f"File {filename} received from {addr}")
+                # tell yourself that you got it w/ location
+                fo.close()
+                
+                uploaded.append(filename)
+                send_data = f"OK@File {filename} uploaded to the server."
             conn.send(send_data.encode(FORMAT))
-            # send confirmation, client_1 receives it
-            
-            with open(filename, "w") as fo:
-                while True:
-                    data = conn.recv(SIZE).decode(FORMAT)
-                    if not data:
-                        break
-                    if data == "EOF":
-                        break
-
-                    fo.write(data)
-            # receive data, copy it
-            fo.close()
-            
-            print(f"File {filename} received from {addr}")
-            # tell yourself that you got it w/ location
-            
-            send_data = f"OK@File {filename} uploaded successfully.\n"
-            conn.send(send_data.encode(FORMAT))
-            # send final confirmation
         
         # TO DO
         elif cmd == "DOWNLOAD":
