@@ -84,7 +84,7 @@ def handle_client (conn,addr):
                     send_data = f"OK@File {filename} not overwritten.\n"
                     conn.send(send_data.encode(FORMAT))
             
-            # if file not already uploaded, upload the file
+            # if file not already uploaded, upload the filee
             else:
                 # send confirmation, client_1 receives it
                 send_data = "File received successfully.\n"
@@ -113,15 +113,23 @@ def handle_client (conn,addr):
         
         # TO DO
         elif cmd == "DOWNLOAD":
-            continue
-            '''
             # send to client_1 that you're ready
             send_data += "Ready to receive the file.\n"
             conn.send(send_data.encode(FORMAT))
             
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
-            '''
+            
+            if (filename in uploaded):
+                continue
+                ### IMPLEMENT SENDING FILE TO CLIENT
+                
+            else:
+                send_data = "File received successfully. 1\n"
+                conn.send(send_data.encode(FORMAT))
+                
+                send_data = f"OK@File {filename} is unable to be downloaded: does not exist.\n"
+                conn.send(send_data.encode(FORMAT))
         
         elif cmd == "DELETE":
             # send to client_1 that you're ready
