@@ -57,13 +57,6 @@ def main():
                     data = fo.read(SIZE)
             client.send("EOF".encode(FORMAT))
             # EOF indicates end of file
-            
-            client.recv(SIZE).decode(FORMAT)
-            # receive "file {filename} uploaded to server"
-            
-            print(f"File {filename} uploaded to the server.")
-            # confirm to user that it's been done
-            
             fo.close()
         
         # TO DO
