@@ -37,27 +37,48 @@ def main():
             break
         
         elif cmd == "UPLOAD":
-            client.send(cmd.encode(FORMAT))
             # send to server that cmd is UPLOAD so it chooses UPLOAD of its functions 
+            client.send(cmd.encode(FORMAT))
             
-            client.recv(SIZE).decode(FORMAT)
             # receive "ready to receive" to continue
+            client.recv(SIZE).decode(FORMAT)
             
+            # send filename to be saved in the server 
             filename = input("Enter the filename to upload: ")
             client.send(filename.encode(FORMAT))
-            # send filename to be saved in the server 
-
-            client.recv(SIZE).decode(FORMAT)
-            # receive "file received" to continue
-
-            with open(filename,"r") as fo:
-                data = fo.read(SIZE)
-                while data:
-                    client.send(data.encode(FORMAT))
+            
+            # receive "file received" or "file received 1" to see if it's already uploaded
+            rec = client.recv(SIZE).decode(FORMAT)
+            
+            # if file is already uploaded
+            if ("1" in rec):
+                # ask if user wants to overwrite it, send it to server
+                ans = input(f"File {filename} already exists. Would you like to overwrite it? (Y/N)\n> ")
+                client.send(ans.encode(FORMAT))
+                
+                # if their answer was Y, send file contents
+                if (ans == "Y"):
+                    with open(filename,"r") as fo:
+                        data = fo.read(SIZE)
+                        while data:
+                            client.send(data.encode(FORMAT))
+                            data = fo.read(SIZE)
+                    client.send("EOF".encode(FORMAT))
+                    # EOF indicates end of file
+                    fo.close()
+                
+                # if their answer was N, do nothing
+            
+            # if file is not already uploaded, send file contents
+            else:
+                with open(filename,"r") as fo:
                     data = fo.read(SIZE)
-            client.send("EOF".encode(FORMAT))
-            # EOF indicates end of file
-            fo.close()
+                    while data:
+                        client.send(data.encode(FORMAT))
+                        data = fo.read(SIZE)
+                client.send("EOF".encode(FORMAT))
+                # EOF indicates end of file
+                fo.close()
         
         # TO DO
         elif cmd == "DOWNLOAD":
