@@ -17,7 +17,6 @@ def main():
     client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     client.connect(ADDR)
     while True:  ### multiple communications
-        # response from the server
         data = client.recv(SIZE).decode(FORMAT)
         cmd, msg = data.split("@")
         if cmd == "OK":
@@ -26,7 +25,6 @@ def main():
             print(f"{msg}")
             break
         
-        # send data to the server
         data = input("> ") 
         data = data.split(" ")
         cmd = data[0]
@@ -37,36 +35,37 @@ def main():
         elif cmd == "LOGOUT":
             client.send(cmd.encode(FORMAT))
             break
-      
-        # TO DO, tried but does not work yet
+        
         elif cmd == "UPLOAD":
-            filename = input("Enter the filename to upload: ")
             client.send(cmd.encode(FORMAT))
+            # send to server that cmd is UPLOAD so it chooses UPLOAD of its functions 
             
+            client.recv(SIZE).decode(FORMAT)
+            # receive "ready to receive" to continue
             
-            
-            client.recv(SIZE).decode(FORMAT)  ## ready to receive
-
+            filename = input("Enter the filename to upload: ")
             client.send(filename.encode(FORMAT))
+            # send filename to be saved in the server 
 
-            client.recv(SIZE).decode(FORMAT)  ## file received
+            client.recv(SIZE).decode(FORMAT)
+            # receive "file received" to continue
 
             with open(filename,"r") as fo:
                 data = fo.read(SIZE)
                 while data:
                     client.send(data.encode(FORMAT))
                     data = fo.read(SIZE)
-            client.send("EOF".encode(FORMAT))  ## indicate end of file
+            client.send("EOF".encode(FORMAT))
+            # EOF indicates end of file
+            
+            client.recv(SIZE).decode(FORMAT)
+            # receive "file {filename} uploaded to server"
+            
             print(f"File {filename} uploaded to the server.")
-            #all this ^ does something but idk how succesfully it actually works
-            '''
-            fi = open(filename,"r")
-            data = fi.read()
-            while data:
-                client.send(data.encode(FORMAT))
-                data = fi.read()
-            fi.close()
-            '''
+            # confirm to user that it's been done
+            
+            fo.close()
+        
         # TO DO
         elif cmd == "DOWNLOAD":
             continue
@@ -79,12 +78,13 @@ def main():
         # TO DO
         elif cmd == "SUBFOLDER":
             continue
+      
 
 
     print("Disconnected from the server.")
     client.close() ## close the connection
 
-# DO MAIN FUNCTION
+# DO MAIN 
 
 if __name__ == "__main__":
     main()
