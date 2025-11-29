@@ -29,13 +29,13 @@ def main():
         data = data.split(" ")
         cmd = data[0]
 
-        if cmd == "TASK":
+        if cmd == "ANALYZE":
+            cmd = "AN1" + cmd
             client.send(cmd.encode(FORMAT))
 
-        elif cmd == "LOGOUT":
+        else:
+            cmd = "AN1" + cmd
             client.send(cmd.encode(FORMAT))
-            break
-      
 
 
 
