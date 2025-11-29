@@ -12,6 +12,8 @@ SIZE = 1024 ## byte .. buffer size
 FORMAT = "utf-8"
 SERVER_DATA_PATH = "server_data"
 
+analysis_dict = {"conn_": "", "transfer_": ""}
+
 def main():
     
     client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -28,14 +30,26 @@ def main():
         data = input("> ") 
         data = data.split(" ")
         cmd = data[0]
-
+        
         if cmd == "ANALYZE":
             cmd = "AN1" + cmd
             client.send(cmd.encode(FORMAT))
+            
+            client.recv(SIZE).decode(FORMAT) # receive "analysis req received"
+            
+            if ("1" not in client.recv(SIZE).decode(FORMAT)):
+                # download the file to dictionary
+                with open("connection_time.txt","r") as fo:
+                    data = fo.read(SIZE)
+                    analysis_dict["conn_"] = data
+                    fo.close()
+                print("Connection time: " + analysis_dict["conn_"] + " seconds")
+                
 
         else:
             cmd = "AN1" + cmd
             client.send(cmd.encode(FORMAT))
+            
 
 
 
