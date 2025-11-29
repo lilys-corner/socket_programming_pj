@@ -16,6 +16,8 @@ SIZE = 1024
 FORMAT = "utf-8"
 SERVER_PATH = "server"
 
+COUNTER = 1
+
 ### to handle the clients
 def handle_client (conn,addr):
 
@@ -53,7 +55,8 @@ def handle_client (conn,addr):
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
-            print("got name")
+            global COUNTER
+            
             # checks if the file has already been uploaded
             if (filename in uploaded):
                 # if it's been uploaded, send a 1 to client to let it know
@@ -66,7 +69,8 @@ def handle_client (conn,addr):
                 # if user wants to overwrite, upload file again
                 if (ans == "Y"):
                     # receive data, copy it
-                    with open(filename, "w") as fo:
+                    new_filename = "TS" + ("%03d" % COUNTER)
+                    with open(new_filename, "w") as fo:
                         while True:
                             data = conn.recv(SIZE).decode(FORMAT)
                             if not data:
@@ -75,6 +79,7 @@ def handle_client (conn,addr):
                                 break
                             fo.write(data)
                         fo.close()
+                    COUNTER += 1
                     
                     # tell yourself that you got it w/ location
                     print(f"File {filename} received from {addr}")
@@ -95,7 +100,8 @@ def handle_client (conn,addr):
                 conn.send(send_data.encode(FORMAT))
                 
                 # receive data, copy it
-                with open(filename, "w") as fo:
+                new_filename = "TS" + ("%03d" % COUNTER)
+                with open(new_filename, "w") as fo:
                     while True:
                         data = conn.recv(SIZE).decode(FORMAT)
                         if not data:
@@ -105,6 +111,7 @@ def handle_client (conn,addr):
     
                         fo.write(data)
                     fo.close()
+                COUNTER += 1
                 
                 # add uploaded file to the uploaded list so we know we have it
                 uploaded.append(filename)
