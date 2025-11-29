@@ -49,6 +49,7 @@ def main():
             
             # receive "file received" or "file received 1" to see if it's already uploaded
             rec = client.recv(SIZE).decode(FORMAT)
+            print("got confirm")
             
             # if file is already uploaded
             if ("1" in rec):
@@ -76,9 +77,10 @@ def main():
                     while data:
                         client.send(data.encode(FORMAT))
                         data = fo.read(SIZE)
-                client.send("EOF".encode(FORMAT))
-                # EOF indicates end of file
-                fo.close()
+                        print(data)
+                    fo.close()
+                client.send("EOF".encode(FORMAT))  ## indicate end of file
+                print(f"File {filename} uploaded to the server.")
         
         # TO DO
         elif cmd == "DOWNLOAD":
