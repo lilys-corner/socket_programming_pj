@@ -52,6 +52,7 @@ def handle_client (conn,addr):
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
+            print("got name")
             # checks if the file has already been uploaded
             if (filename in uploaded):
                 # if it's been uploaded, send a 1 to client to let it know
@@ -72,7 +73,7 @@ def handle_client (conn,addr):
                             if data == "EOF":
                                 break
                             fo.write(data)
-                    fo.close()
+                        fo.close()
                     
                     # tell yourself that you got it w/ location
                     print(f"File {filename} received from {addr}")
@@ -100,8 +101,9 @@ def handle_client (conn,addr):
                             break
                         if data == "EOF":
                             break
+    
                         fo.write(data)
-                fo.close()
+                    fo.close()
                 
                 # add uploaded file to the uploaded list so we know we have it
                 uploaded.append(filename)
