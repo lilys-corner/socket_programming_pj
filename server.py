@@ -164,9 +164,21 @@ def handle_client (conn,addr):
         elif cmd == "SUBFOLDER":
             continue
         
-        else:
-            send_data = f"OK@There is no option for {cmd}. Please try again or type TASK for help.\n"
+        elif cmd == "ANALYZE":
+            send_data = f"OK@Please only use the ANALYZE function using analysis.py.\n"
             conn.send(send_data.encode(FORMAT))
+            
+        elif cmd == "AN1ANALYZE":
+            continue
+            # confirm that files are there, analysis.py will save them to dictionary
+        
+        else:
+            if "AN1" not in cmd:
+                send_data = f"OK@There is no option for {cmd}. Please try again or type TASK for help.\n"
+                conn.send(send_data.encode(FORMAT))
+            else:
+                send_data = f"OK@There is no option for {cmd[3:]}. Please type ANALYZE to analyze performance data.\n"
+                conn.send(send_data.encode(FORMAT))
 
 
     print(f"{addr} disconnected")
