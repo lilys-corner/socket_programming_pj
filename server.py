@@ -169,7 +169,27 @@ def handle_client (conn,addr):
             conn.send(send_data.encode(FORMAT))
             
         elif cmd == "AN1ANALYZE":
-            continue
+            send_data += "Analysis request received"
+            conn.send(send_data.encode(FORMAT))
+            
+            if (os.path.isfile("connection_time.txt") == True):
+                with open("connection_time.txt","r") as fo:
+                    data = fo.read(SIZE)
+                    if not data:
+                        send_data = "File is empty. 1"
+                        conn.send(send_data.encode(FORMAT))
+                        send_data = "OK@Server connection time does not exist."
+                        conn.send(send_data.encode(FORMAT))
+                    else:
+                        send_data = "Analyzing connection time..."
+                        conn.send(send_data.encode(FORMAT))
+                        # continues past this if/else!!!, will analyze other things. Leave this part alone, make more if/thens below
+            else:
+                send_data = "File does not exist. 1"
+                conn.send(send_data.encode(FORMAT))
+                
+                send_data = "OK@Server connection time does not exist."
+                conn.send(send_data.encode(FORMAT))
             # confirm that files are there, analysis.py will save them to dictionary
         
         else:
@@ -195,7 +215,7 @@ def main():
     server.bind(ADDR) # bind the address
     server.listen() ## start listening
     print(f"server is listening on {IP}: {PORT}")
-    os.system("start cmd /c python analysis.py")
+    os.system("start cmd /k python analysis.py")
     while True:
         conn, addr = server.accept() ### accept a connection from a client
         t1 = time()
