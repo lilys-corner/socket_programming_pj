@@ -120,7 +120,7 @@ def handle_client (conn,addr):
                 print(f"File {filename} received from {addr}")
                 
                 # send final confirmation
-                send_data = f"OK@File {filename} uploaded successfully.\n"
+                send_data = f"OK@File {filename} uploaded as {new_filename} successfully.\n"
                 conn.send(send_data.encode(FORMAT))
         
         # TO DO
