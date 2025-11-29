@@ -64,9 +64,9 @@ def main():
                         while data:
                             client.send(data.encode(FORMAT))
                             data = fo.read(SIZE)
-                        client.send("EOF".encode(FORMAT))
-                        # EOF indicates end of file
-                        fo.close()
+                    client.send("EOF".encode(FORMAT))
+                    # EOF indicates end of file
+                    fo.close()
                 
                 # if their answer was N, do nothing
             
@@ -78,8 +78,8 @@ def main():
                         client.send(data.encode(FORMAT))
                         data = fo.read(SIZE)
                         print(data)
-                    client.send("EOF".encode(FORMAT))  ## indicate end of file
                     fo.close()
+                client.send("EOF".encode(FORMAT))  ## indicate end of file
                 print(f"File {filename} uploaded to the server.")
         
         # TO DO
