@@ -7,6 +7,7 @@
 import os
 import socket
 import threading
+from time import time
 
 IP = "localhost"
 PORT = 4450
@@ -171,6 +172,10 @@ def handle_client (conn,addr):
     print(f"{addr} disconnected")
     conn.close()
 
+def write_conn_time(conn_time):
+    with open("connection_time.txt", "w") as fo:
+        fo.write(str(conn_time))
+        fo.close()
 
 def main():
     print("Starting the server")
@@ -181,8 +186,13 @@ def main():
     os.system("start cmd /c python analysis.py")
     while True:
         conn, addr = server.accept() ### accept a connection from a client
+        t1 = time()
         thread = threading.Thread(target = handle_client, args = (conn, addr)) ## assigning a thread for each client
         thread.start()
+        t2 = time()
+        conn_time = t2 - t1
+        print(f"Connection time: {conn_time}")
+        write_conn_time(conn_time)
 
 
 if __name__ == "__main__":
