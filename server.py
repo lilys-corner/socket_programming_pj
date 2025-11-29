@@ -178,6 +178,7 @@ def main():
     server.bind(ADDR) # bind the address
     server.listen() ## start listening
     print(f"server is listening on {IP}: {PORT}")
+    os.system("start cmd /c python analysis.py")
     while True:
         conn, addr = server.accept() ### accept a connection from a client
         thread = threading.Thread(target = handle_client, args = (conn, addr)) ## assigning a thread for each client
