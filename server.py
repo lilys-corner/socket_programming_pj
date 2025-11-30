@@ -24,8 +24,8 @@ def handle_client (conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     conn.send("OK@Welcome to the server".encode(FORMAT))
     
-    # list to track uploaded files
-    uploaded = []
+    # dictionary to map files with their uploaded counterparts
+    uploaded = {}
     
     # list to track subdirectories (for later)
 
@@ -75,7 +75,7 @@ def handle_client (conn,addr):
                 # if user wants to overwrite, upload file again
                 if (ans == "Y"):
                     # receive data, copy it
-                    new_filename = "TS" + ("%03d" % COUNTER)
+                    new_filename = uploaded[filename]
                     received_data = 0
                     with open(new_filename, "wb") as fo:
                         print("Receiving file...")
@@ -90,7 +90,6 @@ def handle_client (conn,addr):
                             received_data += len(data)
                             print("Wrote to file")
                         fo.close()
-                    COUNTER += 1
                     
                     # tell yourself that you got it w/ location
                     print(f"File {filename} received from {addr}")
@@ -130,8 +129,7 @@ def handle_client (conn,addr):
                 COUNTER += 1
                 
                 # add uploaded file to the uploaded list so we know we have it
-                uploaded.append(filename)
-                print(uploaded)
+                uploaded[filename] = new_filename
                 
                 # tell yourself that you got it w/ location
                 print(f"File {filename} received from {addr}")
