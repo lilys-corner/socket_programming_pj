@@ -55,6 +55,8 @@ def handle_client (conn,addr):
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
+            filesize = conn.recv(SIZE).decode(FORMAT).strip()
+            
             global COUNTER
             
             # checks if the file has already been uploaded
@@ -98,18 +100,36 @@ def handle_client (conn,addr):
                 # send confirmation, client_1 receives it
                 send_data = "File received successfully.\n"
                 conn.send(send_data.encode(FORMAT))
+
+                send_data = f"File size received {filesize} bytes.\n"
+                conn.send(send_data.encode(FORMAT))
+                print(f"Receiving filesize of {filesize} bytes")
                 
                 # receive data, copy it
                 new_filename = "TS" + ("%03d" % COUNTER)
-                with open(new_filename, "w") as fo:
-                    while True:
-                        data = conn.recv(SIZE).decode(FORMAT)
+                received_data = 0
+                with open(new_filename, "wb") as fo:
+                    print("Receiving file...")
+                    
+                    while received_data < int(filesize):
+                        print("Receiving...")
+                        data = conn.recv(SIZE)
                         if not data:
                             break
-                        if data == "EOF":
-                            break
-    
+                        print(f"Received {len(data)} bytes")
                         fo.write(data)
+                        received_data += len(data)
+                        print("Wrote to file")
+                        '''
+                    while True:
+                        print("Receiving...")
+                        data = conn.recv(SIZE)
+                        if not data:
+                            break
+                        print(f"Received {len(data)} bytes")
+                        fo.write(data)
+                        print("Wrote to file")
+                        '''
                     fo.close()
                 COUNTER += 1
                 
@@ -128,11 +148,12 @@ def handle_client (conn,addr):
             # send to client_1 that you're ready
             send_data += "Ready to receive the file.\n"
             conn.send(send_data.encode(FORMAT))
-            
+            print(uploaded)
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
             if (filename in uploaded):
+                
                 continue
                 ### IMPLEMENT SENDING FILE TO CLIENT
                 
