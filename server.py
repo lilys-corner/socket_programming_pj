@@ -16,7 +16,9 @@ SIZE = 1024
 FORMAT = "utf-8"
 SERVER_PATH = "server"
 
-COUNTER = 1
+TCOUNTER = 1
+ACOUNTER = 1
+VCOUNTER = 1
 
 ### to handle the clients
 def handle_client (conn,addr):
@@ -55,13 +57,14 @@ def handle_client (conn,addr):
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
-            filesize = conn.recv(SIZE).decode(FORMAT).strip()
+            filesize = conn.recv(SIZE).decode(FORMAT).strip() # STORES FILE SIZE
             
-            global COUNTER
+            global TCOUNTER
+            global ACOUNTER
+            global VCOUNTER
             
             send_data = f"File size received {filesize} bytes.\n"
             conn.send(send_data.encode(FORMAT))
-            print(f"Receiving filesize of {filesize} bytes")
             
             # checks if the file has already been uploaded
             if (filename in uploaded):
@@ -78,17 +81,12 @@ def handle_client (conn,addr):
                     new_filename = uploaded[filename]
                     received_data = 0
                     with open(new_filename, "wb") as fo:
-                        print("Receiving file...")
-                        
                         while received_data < int(filesize):
-                            print("Receiving...")
                             data = conn.recv(SIZE)
                             if not data:
                                 break
-                            print(f"Received {len(data)} bytes")
                             fo.write(data)
                             received_data += len(data)
-                            print("Wrote to file")
                         fo.close()
                     
                     # tell yourself that you got it w/ location
@@ -111,22 +109,29 @@ def handle_client (conn,addr):
                 conn.send(send_data.encode(FORMAT))
                 
                 # receive data, copy it
-                new_filename = "TS" + ("%03d" % COUNTER)
+                file_type = filename[-4:]
+                if (file_type == ".txt"):
+                    new_filename = "TS" + ("%03d" % TCOUNTER)
+                elif (file_type == ".mp3"):
+                    new_filename = "AS" + ("%03d" % ACOUNTER)
+                else:
+                    new_filename = "VS" + ("%03d" % VCOUNTER)
+                    
                 received_data = 0
                 with open(new_filename, "wb") as fo:
-                    print("Receiving file...")
-                    
                     while received_data < int(filesize):
-                        print("Receiving...")
                         data = conn.recv(SIZE)
                         if not data:
                             break
-                        print(f"Received {len(data)} bytes")
                         fo.write(data)
                         received_data += len(data)
-                        print("Wrote to file")
                     fo.close()
-                COUNTER += 1
+                if (file_type == ".txt"):
+                    TCOUNTER += 1
+                elif (file_type == ".mp3"):
+                    ACOUNTER += 1
+                else:
+                    VCOUNTER += 1
                 
                 # add uploaded file to the uploaded list so we know we have it
                 uploaded[filename] = new_filename
@@ -148,15 +153,41 @@ def handle_client (conn,addr):
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
             if (filename in uploaded):
+                file_type = filename[-4:]
+                print(file_type)
+                if (file_type == ".txt"):
+                    new_filename = uploaded[filename] + "_download.txt"
+                elif (file_type == ".mp3"):
+                    new_filename = uploaded[filename] + "_download.mp3"
+                else:
+                    new_filename = uploaded[filename] + "_download.mp4"
                 
-                continue
+                send_data = "File received successfully.\n"
+                conn.send(send_data.encode(FORMAT))
+                
+                filesize = os.path.getsize(uploaded[filename]) # STORES FILE SIZE
+                conn.send(str(filesize).encode(FORMAT))
+                
+                conn.send(new_filename.encode(FORMAT))
+                
+                with open(uploaded[filename],"rb") as fo:
+                    while True:
+                        data = fo.read(SIZE)
+                        if not data:
+                            conn.send(data)
+                            break
+                        conn.sendall(data)
+                    fo.close()
+                send_data = f"OK@File {filename} has been downloaded as {new_filename}."
+                conn.send(send_data.encode(FORMAT))
                 ### IMPLEMENT SENDING FILE TO CLIENT
+
                 
             else:
                 send_data = "File received successfully. 1\n"
                 conn.send(send_data.encode(FORMAT))
                 
-                send_data = f"OK@File {filename} is unable to be downloaded: does not exist.\n"
+                send_data = f"OK@File {filename} is unable to be downloaded: it has not been uploaded.\n"
                 conn.send(send_data.encode(FORMAT))
         
         elif cmd == "DELETE":
