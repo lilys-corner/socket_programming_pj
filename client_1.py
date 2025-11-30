@@ -112,6 +112,7 @@ def main():
                             break
                         fo.write(data)
                         received_data += len(data)
+                        print(f"Received: {received_data}, Total: {fsize}")
                     fo.close()
                 print("finished writing")
                 ### IMPLEMENT RECEIVING FILE FROM SERVER
