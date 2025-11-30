@@ -142,7 +142,5 @@ def main():
     print("Disconnected from the server.")
     client.close() ## close the connection
 
-# DO MAIN 
-
 if __name__ == "__main__":
     main()
