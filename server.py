@@ -177,11 +177,14 @@ def handle_client (conn,addr):
                             conn.send(data)
                             break
                         conn.sendall(data)
+                        print(data)
                     fo.close()
+                    print("I've just closed it")
+                    
+                print(f"Sent {new_filename} to the client.")
+                    
                 send_data = f"OK@File {filename} has been downloaded as {new_filename}."
                 conn.send(send_data.encode(FORMAT))
-                ### IMPLEMENT SENDING FILE TO CLIENT
-
                 
             else:
                 send_data = "File received successfully. 1\n"
