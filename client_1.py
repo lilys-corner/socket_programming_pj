@@ -47,10 +47,18 @@ def main():
             filename = input("Enter the filename to upload: ")
             client.send(filename.encode(FORMAT))
             
+
+            fsize = os.path.getsize(filename)
+            print(f"File size: {fsize} bytes")
+
+            client.send(str(fsize).encode(FORMAT))
+            srecv = client.recv(SIZE).decode(FORMAT)
+            print("size confirmation received")
+
             # receive "file received" or "file received 1" to see if it's already uploaded
             rec = client.recv(SIZE).decode(FORMAT)
             print("got confirm")
-            
+
             # if file is already uploaded
             if ("1" in rec):
                 # ask if user wants to overwrite it, send it to server
@@ -72,17 +80,28 @@ def main():
             
             # if file is not already uploaded, send file contents
             else:
-                with open(filename,"r") as fo:
-                    data = fo.read(SIZE)
-                    while data:
-                        client.send(data.encode(FORMAT))
+                with open(filename,"rb") as fo:
+                    print ("Uploading file...")
+                    while True:
+                        print("Uploading...")
                         data = fo.read(SIZE)
-                        print(data)
+                        if not data:
+                            client.send(data)
+                            break
+                        print(f"Read {len(data)} bytes")
+                        client.sendall(data)
+                        print("Sent a chunk")
+                    '''
+                    data = fo.read(SIZE)
+                    if not data:
+                        break
+                    client.sendall(data)
+                    '''
                     fo.close()
-                client.send("EOF".encode(FORMAT))  ## indicate end of file
-                print(f"File {filename} uploaded to the server.")
-        
-        # TO DO
+            #client.send("EOF".encode(FORMAT))  ## indicate end of file
+            print(f"File {filename} uploaded to the server.")
+    
+    # TO DO
         elif cmd == "DOWNLOAD":
             # send to server that cmd is DOWNLOAD so it chooses DOWNLOAD of its functions 
             client.send(cmd.encode(FORMAT))
