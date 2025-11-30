@@ -48,16 +48,13 @@ def main():
             client.send(filename.encode(FORMAT))
             
 
-            fsize = os.path.getsize(filename)
-            print(f"File size: {fsize} bytes")
+            fsize = os.path.getsize(filename) # STORES FILE SIZE
             client.send(str(fsize).encode(FORMAT))
             
             client.recv(SIZE).decode(FORMAT) # size confirm
-            print("size confirmation received")
 
             # receive "file received" or "file received 1" to see if it's already uploaded
             rec = client.recv(SIZE).decode(FORMAT)
-            print("got confirm")
 
             # if file is already uploaded
             if ("1" in rec):
@@ -68,16 +65,12 @@ def main():
                 # if their answer was Y, send file contents
                 if (ans == "Y"):
                     with open(filename,"rb") as fo:
-                        print ("Uploading file...")
                         while True:
-                            print("Uploading...")
                             data = fo.read(SIZE)
                             if not data:
                                 client.send(data)
                                 break
-                            print(f"Read {len(data)} bytes")
                             client.sendall(data)
-                            print("Sent a chunk")
                         fo.close()
                 
                 # if their answer was N, do nothing
@@ -85,19 +78,13 @@ def main():
             # if file is not already uploaded, send file contents
             else:
                 with open(filename,"rb") as fo:
-                    print ("Uploading file...")
                     while True:
-                        print("Uploading...")
                         data = fo.read(SIZE)
                         if not data:
                             client.send(data)
                             break
-                        print(f"Read {len(data)} bytes")
                         client.sendall(data)
-                        print("Sent a chunk")
                     fo.close()
-            #client.send("EOF".encode(FORMAT))  ## indicate end of file
-            print(f"File {filename} uploaded to the server.")
     
     # TO DO
         elif cmd == "DOWNLOAD":
@@ -112,7 +99,21 @@ def main():
             client.send(filename.encode(FORMAT))
             
             if ("1" not in client.recv(SIZE).decode(FORMAT)):
-                continue
+                fsize = client.recv(SIZE).decode(FORMAT).strip() # STORES FILE SIZE
+                
+                new_filename = client.recv(SIZE).decode(FORMAT)
+                print(new_filename)
+                
+                received_data = 0
+                with open(new_filename, "wb") as fo: # problem
+                    while received_data < int(fsize):
+                        data = client.recv(SIZE)
+                        if not data:
+                            break
+                        fo.write(data)
+                        received_data += len(data)
+                    fo.close()
+                print("finished writing")
                 ### IMPLEMENT RECEIVING FILE FROM SERVER
         
         elif cmd == "DELETE":
