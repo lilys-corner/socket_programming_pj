@@ -7,7 +7,7 @@
 import os
 import socket
 import threading
-from time import time
+from time import time, sleep
 
 IP = "localhost"
 PORT = 4450
@@ -19,6 +19,11 @@ SERVER_PATH = "server"
 TCOUNTER = 1
 ACOUNTER = 1
 VCOUNTER = 1
+
+def write_a_file(filename, value):
+    with open(filename, "w") as fo:
+        fo.write(str(value))
+        fo.close()
 
 ### to handle the clients
 def handle_client (conn,addr):
@@ -77,6 +82,7 @@ def handle_client (conn,addr):
                 
                 # if user wants to overwrite, upload file again
                 if (ans == "Y"):
+                    t1 = time()
                     # receive data, copy it
                     new_filename = uploaded[filename]
                     received_data = 0
@@ -88,6 +94,13 @@ def handle_client (conn,addr):
                             fo.write(data)
                             received_data += len(data)
                         fo.close()
+                    
+                    t2 = time()
+                    upload_time = t2 - t1
+                    write_a_file("upload_time.txt", upload_time)
+                    
+                    up_rate = ((float(filesize) / 1024) / 1024) * upload_time
+                    write_a_file("up_rate.txt", up_rate)
                     
                     # tell yourself that you got it w/ location
                     print(f"File {filename} received from {addr}")
@@ -103,7 +116,7 @@ def handle_client (conn,addr):
             
             # if file not already uploaded, upload the filee
             else:
-                
+                t1 = time()
                 # send confirmation, client_1 receives it
                 send_data = "File received successfully.\n"
                 conn.send(send_data.encode(FORMAT))
@@ -126,6 +139,14 @@ def handle_client (conn,addr):
                         fo.write(data)
                         received_data += len(data)
                     fo.close()
+                
+                t2 = time()
+                upload_time = t2 - t1
+                write_a_file("upload_time.txt", upload_time)
+                
+                up_rate = ((float(filesize) / 1024) / 1024) * upload_time
+                write_a_file("up_rate.txt", up_rate)
+                
                 if (file_type == ".txt"):
                     TCOUNTER += 1
                 elif (file_type == ".mp3"):
@@ -145,22 +166,24 @@ def handle_client (conn,addr):
         
         # TO DO
         elif cmd == "DOWNLOAD":
+            
             # send to client_1 that you're ready
             send_data += "Ready to receive the file.\n"
             conn.send(send_data.encode(FORMAT))
-            print(uploaded)
+            
             # get filename
             filename = conn.recv(SIZE).decode(FORMAT).strip()
             
             if (filename in uploaded):
                 file_type = filename[-4:]
-                print(file_type)
                 if (file_type == ".txt"):
                     new_filename = uploaded[filename] + "_download.txt"
                 elif (file_type == ".mp3"):
                     new_filename = uploaded[filename] + "_download.mp3"
                 else:
                     new_filename = uploaded[filename] + "_download.mp4"
+                
+                t1 = time()
                 
                 send_data = "File received successfully.\n"
                 conn.send(send_data.encode(FORMAT))
@@ -177,13 +200,20 @@ def handle_client (conn,addr):
                             conn.send(data)
                             break
                         conn.sendall(data)
-                        print(data)
                     fo.close()
-                    print("I've just closed it")
+                
+                t2 = time()
+                dnload_time = t2 - t1
+                write_a_file("dnload_time.txt", dnload_time)
+                
+                dn_rate = ((float(filesize) / 1024) / 1024) * dnload_time
+                write_a_file("dn_rate.txt", dn_rate)
+                
+                sleep(0.1)
                     
-                print(f"Sent {new_filename} to the client.")
+                print(f"Sent {new_filename} to {addr}.")
                     
-                send_data = f"OK@File {filename} has been downloaded as {new_filename}."
+                send_data = f"OK@File {filename} has been downloaded as {new_filename}.\n"
                 conn.send(send_data.encode(FORMAT))
                 
             else:
@@ -222,49 +252,102 @@ def handle_client (conn,addr):
             continue
         
         elif cmd == "ANALYZE":
-            send_data = f"OK@Please only use the ANALYZE function using analysis.py.\n"
-            conn.send(send_data.encode(FORMAT))
-            
-        elif cmd == "AN1ANALYZE":
-            send_data += "Analysis request received"
+            send_data += "Analysis request received\n"
             conn.send(send_data.encode(FORMAT))
             
             if (os.path.isfile("connection_time.txt") == True):
                 with open("connection_time.txt","r") as fo:
                     data = fo.read(SIZE)
                     if not data:
-                        send_data = "File is empty. 1"
-                        conn.send(send_data.encode(FORMAT))
-                        send_data = "OK@Server connection time does not exist."
+                        send_data = "Cannot analyze: File is empty. 1\n"
                         conn.send(send_data.encode(FORMAT))
                     else:
-                        send_data = "Analyzing connection time..."
+                        send_data = "Analyzing connection time...\n"
                         conn.send(send_data.encode(FORMAT))
-                        # continues past this if/else!!!, will analyze other things. Leave this part alone, make more if/thens below
             else:
-                send_data = "File does not exist. 1"
+                send_data = "Cannot analyze: File does not exist. 1\n"
                 conn.send(send_data.encode(FORMAT))
-                
-                send_data = "OK@Server connection time does not exist."
+            
+            sleep(0.1)
+            
+            if (os.path.isfile("upload_time.txt") == True):
+                with open("upload_time.txt","r") as fo:
+                    data = fo.read(SIZE)
+                    if not data:
+                        send_data = "Cannot analyze: File is empty. 1\n"
+                        conn.send(send_data.encode(FORMAT))
+                        print("Cannot analyze: File is empty. 1\n")
+                    else:
+                        send_data = "Analyzing upload time...\n"
+                        conn.send(send_data.encode(FORMAT))
+                        print("Analyzing upload time...\n")
+            else:
+                send_data = "Cannot analyze: File does not exist. 1\n"
                 conn.send(send_data.encode(FORMAT))
-            # confirm that files are there, analysis.py will save them to dictionary
-        
+                print("Cannot analyze: File is empty. 1\n")
+            
+            sleep(0.1)
+            
+            if (os.path.isfile("up_rate.txt") == True):
+                with open("up_rate.txt","r") as fo:
+                    data = fo.read(SIZE)
+                    if not data:
+                        send_data = "Cannot analyze: File is empty. 1\n"
+                        conn.send(send_data.encode(FORMAT))
+                    else:
+                        send_data = "Analyzing upload rate...\n"
+                        conn.send(send_data.encode(FORMAT))
+            else:
+                send_data = "Cannot analyze: File does not exist. 1\n"
+                conn.send(send_data.encode(FORMAT))
+            
+            sleep(0.1)
+            
+            if (os.path.isfile("dnload_time.txt") == True):
+                with open("dnload_time.txt","r") as fo:
+                    data = fo.read(SIZE)
+                    if not data:
+                        send_data = "Cannot analyze: File is empty. 1\n"
+                        conn.send(send_data.encode(FORMAT))
+                    else:
+                        send_data = "Analyzing download time...\n"
+                        conn.send(send_data.encode(FORMAT))
+            else:
+                send_data = "Cannot analyze: File does not exist. 1\n"
+                conn.send(send_data.encode(FORMAT))
+            
+            sleep(0.1)
+            
+            if (os.path.isfile("dn_rate.txt") == True):
+                with open("dn_rate.txt","r") as fo:
+                    data = fo.read(SIZE)
+                    if not data:
+                        send_data = "Cannot analyze: File is empty. 1\n"
+                        conn.send(send_data.encode(FORMAT))
+                    else:
+                        send_data = "Analyzing download rate...\n"
+                        conn.send(send_data.encode(FORMAT))
+            else:
+                send_data = "Cannot analyze: File does not exist. 1\n"
+                conn.send(send_data.encode(FORMAT))
+            
+            sleep(0.1)
+            
+            send_data = "OK@Analysis complete.\n"
+            conn.send(send_data.encode(FORMAT))
+            
+
         else:
             if "AN1" not in cmd:
-                send_data = f"OK@There is no option for {cmd}. Please try again or type TASK for help.\n"
+                send_data = f"OK@There is no option for {cmd}.\nPlease try again or type TASK for help.\n"
                 conn.send(send_data.encode(FORMAT))
             else:
-                send_data = f"OK@There is no option for {cmd[3:]}. Please type ANALYZE to analyze performance data.\n"
+                send_data += f"There is no option for {cmd[3:]}.\nPlease type ANALYZE to analyze performance data.\n"
                 conn.send(send_data.encode(FORMAT))
 
 
     print(f"{addr} disconnected")
     conn.close()
-
-def write_conn_time(conn_time):
-    with open("connection_time.txt", "w") as fo:
-        fo.write(str(conn_time))
-        fo.close()
 
 def main():
     print("Starting the server")
@@ -281,8 +364,7 @@ def main():
         t2 = time()
         conn_time = t2 - t1
         print(f"Connection time: {conn_time}")
-        write_conn_time(conn_time)
-
+        write_a_file("connection_time.txt", conn_time)
 
 if __name__ == "__main__":
     main()
