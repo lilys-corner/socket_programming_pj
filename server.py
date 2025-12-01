@@ -104,7 +104,7 @@ def handle_client (conn,addr):
                     upload_time = t2 - t1
                     write_a_file("upload_time.txt", upload_time)
                     
-                    up_rate = ((float(filesize) / upload_time) / 1000000
+                    up_rate = (float(filesize) / upload_time) / 1000000
                     write_a_file("up_rate.txt", up_rate)
                     
                     # tell yourself that you got it w/ location
@@ -149,7 +149,7 @@ def handle_client (conn,addr):
                 upload_time = t2 - t1
                 write_a_file("upload_time.txt", upload_time)
                 
-                up_rate = ((float(filesize) / upload_time) / 1000000
+                up_rate = (float(filesize) / upload_time) / 1000000
                 write_a_file("up_rate.txt", up_rate)
                 
                 if (file_type == ".txt"):
@@ -211,7 +211,7 @@ def handle_client (conn,addr):
                 dnload_time = t2 - t1
                 write_a_file("dnload_time.txt", dnload_time)
                 
-                dn_rate = ((float(filesize) / 1024) / dnload_time) / 1000000
+                dn_rate = (float(filesize) / dnload_time) / 1000000
                 write_a_file("dn_rate.txt", dn_rate)
                 
                 sleep(0.1)
