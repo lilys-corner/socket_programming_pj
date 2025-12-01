@@ -233,7 +233,8 @@ def handle_client (conn,addr):
             
             # if file exists in server, delete it
             if (filename in uploaded):
-                uploaded.remove(filename)
+                os.remove(uploaded[filename])
+                del uploaded[filename]
                 
                 send_data = f"OK@File {filename} successfully deleted.\n"
                 conn.send(send_data.encode(FORMAT))
