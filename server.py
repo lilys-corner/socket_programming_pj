@@ -54,6 +54,8 @@ def handle_client (conn,addr):
             send_data += "UPLOAD a file to the server.\n"
             send_data += "DOWNLOAD a file from the server.\n"
             send_data += "DELETE a file from the server.\n"
+            send_data += "Receive a DIR.\n"
+            send_data += "Manipulate a SUBFOLDER.\n"
 
             conn.send(send_data.encode(FORMAT))
 
