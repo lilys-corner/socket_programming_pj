@@ -366,15 +366,12 @@ def handle_client (conn,addr):
                     if not data:
                         send_data = "Cannot analyze: File is empty. 1\n"
                         conn.send(send_data.encode(FORMAT))
-                        print("Cannot analyze: File is empty. 1\n")
                     else:
                         send_data = "Analyzing upload time...\n"
                         conn.send(send_data.encode(FORMAT))
-                        print("Analyzing upload time...\n")
             else:
                 send_data = "Cannot analyze: File does not exist. 1\n"
                 conn.send(send_data.encode(FORMAT))
-                print("Cannot analyze: File is empty. 1\n")
             
             sleep(0.1)
             
