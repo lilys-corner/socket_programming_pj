@@ -1,4 +1,6 @@
-# Author : Ayesha S. Dina
+# COMPUTER NETWORKS (CNT3004-04) FINAL PROJECT
+# FILE SHARING SYSTEM
+# Qinhe Yu, Hailey Schluter, Hayley Kintner, Micaela Predestin
 
 import os
 import socket
